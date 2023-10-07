@@ -14,6 +14,7 @@ site_names = ['WHITMORE', '24THO', '74DODGE', 'OPPD', 'NCORE', '30THFORT', 'GHIL
 # gets readings by pollutant type
 def getLevels(pollutant_type, interval_count, interval_type):
     sensor_values = {"pollutant":pollutant_type, "interval_count":interval_count, "interval_type":interval_type, "values":[]}
+    # add other sitenames for other pollutants 
     query = "TimeInterval='001h' AND SiteName IN('NCORE') AND ParameterName='"+pollutant_type+"' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '"+str(interval_count)+"' "+interval_type+") AND CURRENT_TIMESTAMP AND ModifiedOn IS NOT NULL"
     if pollutant_type == "PM10":
         query = "TimeInterval='001h' AND SiteName IN('74DODGE', 'OPPD', 'WHITMORE', '24THO', 'NCORE', '30THFORT', 'GHILLS') AND ParameterAlias='PM10' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<300 AND ModifiedOn IS NOT NULL"
@@ -42,7 +43,7 @@ def getLevels(pollutant_type, interval_count, interval_type):
     return sensor_values
 
 if __name__ == "__main__":
-    data = getLevels('CO', 2, "DAY")
+    data = getLevels('CO', 24, "HOUR")
     #print(data)
     chart.displayGraph(data)
     #chart.averageValues(data)

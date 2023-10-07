@@ -2,45 +2,63 @@
 import math
 import numpy
 
+# NOTE: data is already ordered chronologically in api response (don't use time data to  calculate position)
+
 # (start, end, distance between intervals, physical space left on chart)
 interval_ranges = {
     "CO":(0.0, .5, .1, 4)
 }
 
 def displayGraph(data):
-    # define chart intervals to display
-    values = []
-    for f in data['values']:
-        values.append(f['value'])
-        #print(f['value'])
-
-
-
-    #print(max(values))
-    #print(min(values))
     #print(data)
+    print(data['values'][1])
     print("----------------------------------------")
+    plot_matrix = numpy.empty((30, 24))
     #averages = averageValues(data)
-    #print(data['values'][0]['time'])
-    #print(data['values'][0]['time'][-3:-2])
-    # add function to convert time into a 'space distance' based on given time and interval specified
-    for s in numpy.arange(0.5, 0.0, -0.1):
-        #print(str(s))
-        for v in data['values']:
-            #print(numpy.round(v['value'], 2))
-            line = ""
-            #print(v['value'], numpy.round(s, 2))
-            if v['value'] >= numpy.round(s, 2) and v['value'] < numpy.round(s+0.1, 2):
-                #print((v['hour'])*" "+"*", end=None)
-                line += (v['hour']*5)*" "+"*"
-            if line != "":
-                print(line)
-        #print()
     
-def findValue(data, site_name, time_str):
+    # add function to convert time into a 'space distance' based on given time and interval specified
+
+    # arranges values into plotting matrix
+    for i in numpy.arange(start=0.3, stop=0, step=-0.01):
+        #print(str(numpy.round(i, 3))+" |", end="")
+        j=0
+        while(j < len(data['values'])):
+            #print(str(numpy.round(data['values'][j]['value'], 2)))
+            upper_bound = i+0.02
+            lower_bound = i-0.02
+            curr_val = numpy.round(data['values'][j]['value'], 2)
+            #print(numpy.round(i, 3)*100-1)
+            if curr_val == numpy.round(i, 2):
+                plot_matrix[int(numpy.round(i, 3)*100-1)][j] = 1
+
+            j+=1
+            """
+            if(numpy.round(data['values'][j]['value'], 3) == numpy.round(i, 3)):
+                print(" "*(data['values'][j]['day']+data['values'][j]['hour'])+"*", end="")
+            j+=1
+            """
+        #print()
+    #print(plot_matrix)
+
+    # go backwards through list, cuz it gets mirrored when read into the numpy array
+    # TODO: figure out how to stop it from printing if no data exists on that line, print axes
+    # TODO: check if data spanning multiple days works w/ this method
+    for i in range(len(plot_matrix)-1, 0, -1):
+        for j in range(len(plot_matrix[i])):
+            try:
+                if(int(plot_matrix[i][j]) == 1):
+                    print("*", end="")
+                else:
+                    print(" ", end="")
+            except:
+                pass
+        print()
+
+    
+def findValue(data, site_name, month, day, hour):
     for f in range(len(data['values'])):
         #print(time_str, data['values'][f]['time'])
-        if data['values'][f]['source'] != site_name and data['values'][f]['time'] == time_str:
+        if data['values'][f]['source'] != site_name and data['values'][f]['day'] == day and data['values'][f]['hour'] == hour and data['values'][f]['month'] == month:
             return f
 
 # not all sites collect on same frequencies
