@@ -59,7 +59,8 @@ def displayGraph(data):
 
     # add more space to output
     for i in range(len(plot_matrix)-1, 0, -1):
-        if(dataInRow(plot_matrix[i])):
+        exists = dataInRow(plot_matrix[i])
+        if(exists):
             print("{:.3f}".format((i+1)/100)+" | ", end="")
         for j in range(len(plot_matrix[i])):
             try:
@@ -67,12 +68,12 @@ def displayGraph(data):
                     #data_start = True
                     print(" * ", end="")
                 else:
-                    if(dataInRow(plot_matrix[i])):
+                    if(exists):
                         print(" "*3, end="")
             except:
                 pass
         #if(data_start)
-        if(dataInRow(plot_matrix[i])):
+        if(exists):
             print()
 
 
