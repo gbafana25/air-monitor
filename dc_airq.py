@@ -19,7 +19,7 @@ def getLevels(pollutant_type, interval_count, interval_type):
     if pollutant_type == "PM10":
         query = "TimeInterval='001h' AND SiteName IN('74DODGE', 'OPPD', 'WHITMORE', '24THO', 'NCORE', '30THFORT', 'GHILLS') AND ParameterAlias='PM10' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<300 AND ModifiedOn IS NOT NULL"
     elif pollutant_type == "PM2.5":
-        query = "TimeInterval='001h' AND SiteName IN('Blair BAM Direct', 'GHills BAM direct', 'NCORE') AND ParameterAlias IN('PM2.5', 'PM25LC') AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<200 AND ModifiedOn IS NOT NULL"
+        query = "TimeInterval='001h' AND SiteName IN('NCORE') AND ParameterAlias IN('PM2.5', 'PM25LC') AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<200 AND ModifiedOn IS NOT NULL"
     p = {
         "f":"json",
         "groupByFieldsForStatistics":"SiteName,EXTRACT(YEAR FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(MONTH FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(DAY FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(HOUR FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND)",
@@ -43,7 +43,7 @@ def getLevels(pollutant_type, interval_count, interval_type):
     return sensor_values
 
 if __name__ == "__main__":
-    data = getLevels('NO', 24, "HOUR")
-    #print(data)
+    data = getLevels('SO2', 24, "HOUR")
     chart.displayGraph(data)
-    #chart.averageValues(data)
+    #chart.combineValues(data)
+    #print(data)
