@@ -43,7 +43,7 @@ def getLevels(pollutant_type, interval_count, interval_type):
     return sensor_values
 
 if __name__ == "__main__":
-    data = getLevels('SO2', 24, "HOUR")
+    data = getLevels('OZONE', 24, "HOUR")
     chart.displayGraph(data)
     #chart.combineValues(data)
     #print(data)

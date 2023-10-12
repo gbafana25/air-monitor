@@ -6,12 +6,12 @@ import numpy
 
 # parts per x * 100 for array indexes, # of decimal places to round, decrement level, unit, conversion factor, list divisor
 interval_ranges = {
-    "CO":(40, 2, -0.01, "ppm", 100, 100), # ppm
-    "NO":(500, 3, -0.001, "ppb", 100, 100), # ppb
-    "SO2":(800, 3, -0.001, "ppb", 1000, 1000), # ppb
-    "OZONE":(40, 3, -0.001, "ppb", 1000, 100), # ppb
-    "PM2.5": (40, 1, -1, "ug/m3", 1, 1), # ug/m3
-    "PM10": (50, 1, -1, "ug/m3", 1, 1)
+    "CO":(40, 2, -0.01, "ppm", 100, 100, "{:.2f}", 100), # ppm
+    "NO":(500, 3, -0.001, "ppb", 100, 100, "{:.2f}", 100), # ppb
+    "SO2":(800, 3, -0.001, "ppb", 1000, 1000, "{:.3f}", 100), # ppb
+    "OZONE":(80, 3, -0.001, "ppb", 1000, 100, "{:.3f}", 100), # ppb
+    "PM2.5": (40, 1, -1, "ug/m3", 1, 1, "{:.0f}", 1), # ug/m3
+    "PM10": (50, 1, -1, "ug/m3", 1, 1, "{:.0f}", 1)
 }
 
 def dataInRow(row):
@@ -28,6 +28,8 @@ def displayGraph(data):
     decr = interval_ranges[data['pollutant']][2]
     conv_factor = interval_ranges[data['pollutant']][4]
     divisor = interval_ranges[data['pollutant']][5]
+    unit_format = interval_ranges[data['pollutant']][6]
+    unit_divisor = interval_ranges[data['pollutant']][7]
 
     rows = interval_ranges[data['pollutant']][0]
     columns = 0
@@ -64,7 +66,7 @@ def displayGraph(data):
     for i in range(len(plot_matrix)-1, 0, -1):
         exists = dataInRow(plot_matrix[i])
         if(exists):
-            print("{:.3f}".format((i+1)/100)+" | ", end="")
+            print(unit_format.format((i+1)/unit_divisor)+" | ", end="")
         for j in range(len(plot_matrix[i])):
             try:
                 if(int(plot_matrix[i][j]) == 1):
