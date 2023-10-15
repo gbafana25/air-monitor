@@ -9,7 +9,7 @@ interval_ranges = {
     "CO":(40, 2, -0.01, "ppm", 100, 100, "{:.2f}", 100), # ppm
     "NO":(500, 3, -0.001, "ppb", 100, 100, "{:.2f}", 100), # ppb
     "SO2":(800, 3, -0.001, "ppb", 1000, 1000, "{:.3f}", 100), # ppb
-    "OZONE":(80, 3, -0.001, "ppb", 1000, 100, "{:.3f}", 100), # ppb
+    "OZONE":(80, 3, -0.001, "ppb", 1000, 100, "{:.3f}", 1000), # ppb
     "PM2.5": (40, 1, -1, "ug/m3", 1, 1, "{:.0f}", 1), # ug/m3
     "PM10": (50, 1, -1, "ug/m3", 1, 1, "{:.0f}", 1)
 }
@@ -19,10 +19,31 @@ def dataInRow(row):
         return True
     return False
 
+def showTimeAxis(count, c_type, div):
+    total = 0
+    if c_type == 'DAY':
+        total = count*24
+    else:
+        total = count
+
+    if(div == 100):
+        print(" "*7, end="")
+    elif(div == 1000):
+        print(" "*8, end="")
+    elif(div == 1):
+        print(" "*6, end="")
+    
+    for i in range(total):
+        print(" "+str(i+1)+" ", end="")
+
+    print()
+    print(" "*(total)+"Time (hr)")
+
+
 def displayGraph(data):
     #print(data)
     #print(data['values'][len(data['values'])-1])
-
+    
     pollutant_int = interval_ranges[data['pollutant']][0]
     round_places = interval_ranges[data['pollutant']][1]
     decr = interval_ranges[data['pollutant']][2]
@@ -83,6 +104,7 @@ def displayGraph(data):
 
 
     print("-"*(columns+5)*3)
+    showTimeAxis(data['interval_count'], data['interval_type'], unit_divisor)
     
 def findValue(data, site_name, month, day, hour):
     for f in range(len(data['values'])):
@@ -92,41 +114,34 @@ def findValue(data, site_name, month, day, hour):
 
 # still work in progress, doesn't work as required
 def combineValues(data):
-    alen = 0
-    condensed = []
-    #print(len(data['values']))
-    curr_time = [data['values'][0]['hour'], data['values'][0]['day'], data['values'][0]['month'], data['values'][0]['value']]
-    while(alen < len(data['values'])-1):
-        if data['values'][alen]['hour'] == curr_time[0] and data['values'][alen]['day'] == curr_time[1] and data['values'][alen]['month'] == curr_time[2]:
-            # average, then delete
-            comb = {
-                'source': 'combined',
-                'value': (data['values'][alen]['value']+curr_time[3])/2,
-                'hour': curr_time[0],
-                'day': curr_time[1],
-                'month': curr_time[2]
-            } 
-            condensed.append(comb)
-            data['values'].pop(alen)
-        #else:
-            # append to condensed
-            #condensed.append(data['values'][alen])
-            #data['values'].pop(alen)
-        alen += 1
-        curr_time[0] = data['values'][alen]['hour']
-        curr_time[1] = data['values'][alen]['day']
-        curr_time[2] = data['values'][alen]['month']
-        curr_time[3] = data['values'][alen]['value']
-    #print(condensed)
-    
-    # insert leftover values 
-
+    combined_data = []
+    # dict of timeslots (hour, day, month) as tuples
+    time_slots = {}
+    # create dictionary of all timeslots
     for i in range(len(data['values'])):
         curr = data['values'][i]
-        for j in range(len(condensed)):
-            if condensed[j]['day'] == curr['day'] and condensed[j]['month'] == curr['month'] and condensed[j]['hour']+1 == curr['hour']:
-                condensed.append(curr)
+        t_tup = (curr['hour'], curr['day'], curr['month'])
+        if t_tup not in time_slots:
+            time_slots[t_tup] = []
+            time_slots[t_tup].append(data['values'][i])
+        else:
+            time_slots[t_tup].append(data['values'][i])
+
+    #print(time_slots)
+    # average slot if multiple
+    keyslots = list(time_slots.keys())
+    for f in range(len(keyslots)):
+        curr = time_slots[keyslots[f]]
+        #print(curr)
+        if(len(curr) > 1):
+            sum = 0
+            for c in curr:
+                sum += c['value']
+            avg = sum/len(curr)
+            time_slots[keyslots[f]] = {'source':'average', 'value':avg, 'hour':keyslots[f][0], 'day':keyslots[f][1], 'month':keyslots[f][2]}
+            combined_data.append(time_slots[keyslots[f]])
+        else:
+            combined_data.append(curr[0])
+    #print(combined_data)
+    data['values'] = combined_data
     
-    for s in condensed:
-        print(s)
-    #print(len(data['values']))

@@ -27,7 +27,6 @@ Frontend app/script for Douglas County Air Quality
 - in `where`, between specifier can be changed `(CURRENT_TIMESTAMP - INTERVAL '2' DAY)`
 
 # TODO
-- add function(s) to handle multiple data sources, average data, arrange chronogically
-- time increment display to x axis
 - figure out how to show negative data points (SO2, PM2.5) (add stop value to `numpy.arange`?)
     - not as important, since these values don't show up that often
+    - averaging now somewhat fixes it

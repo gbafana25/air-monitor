@@ -8,18 +8,41 @@ base_url = "https://services.arcgis.com/pDAi2YK0L0QxVJHj/arcgis/rest/services/Ai
 outstats = [{"onStatisticField":"ReportValue","outStatisticFieldName":"value","statisticType":"avg"}]
 
 # PM2.5 and PM10 require SiteName in request
-pollutant_types = ["SO2", "OZONE", "PM2.5", "PM25LC", "PM10", "NO", "CO"]
+#pollutant_types = ["SO2", "OZONE", "PM2.5", "PM25LC", "PM10", "NO", "CO"]
+
+# holdes site names
+pollutant_types = {
+    "SO2": ['WHITMORE', 'NCORE'],
+    "OZONE": ['NCORE'],
+    "PM2.5": ['Blair BAM Direct', 'GHills BAM direct', 'NCORE'],
+    "PM10": ['74DODGE', 'OPPD', 'WHITMORE', '24THO', 'NCORE', '30THFORT', 'GHILLS'],
+    "NO": ['NCORE'],
+    "CO": ['NCORE'],
+}
 site_names = ['WHITMORE', '24THO', '74DODGE', 'OPPD', 'NCORE', '30THFORT', 'GHILLS']
 
 # gets readings by pollutant type
 def getLevels(pollutant_type, interval_count, interval_type):
     sensor_values = {"pollutant":pollutant_type, "interval_count":interval_count, "interval_type":interval_type, "values":[]}
     # add other sitenames for other pollutants 
-    query = "TimeInterval='001h' AND SiteName IN('"+site_names[4]+"') AND ParameterName='"+pollutant_type+"' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '"+str(interval_count)+"' "+interval_type+") AND CURRENT_TIMESTAMP AND ModifiedOn IS NOT NULL"
+
+    sites = ""
+    #build sitenames string
+    if len(pollutant_types[pollutant_type]) == 1:
+        sites = "'"+pollutant_types[pollutant_type][0]+"'"
+    else:
+        sites = "'"+pollutant_types[pollutant_type][0]+"'"
+        for s in range(1, len(pollutant_types[pollutant_type])):
+            sites += ",'"+pollutant_types[pollutant_type][s]+"'"
+
+    #print(sites)
+    query = "TimeInterval='001h' AND SiteName IN("+sites+") AND ParameterName='"+pollutant_type+"' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '"+str(interval_count)+"' "+interval_type+") AND CURRENT_TIMESTAMP AND ModifiedOn IS NOT NULL"
+    #print(query)
     if pollutant_type == "PM10":
         query = "TimeInterval='001h' AND SiteName IN('74DODGE', 'OPPD', 'WHITMORE', '24THO', 'NCORE', '30THFORT', 'GHILLS') AND ParameterAlias='PM10' AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<300 AND ModifiedOn IS NOT NULL"
     elif pollutant_type == "PM2.5":
-        query = "TimeInterval='001h' AND SiteName IN('NCORE') AND ParameterAlias IN('PM2.5', 'PM25LC') AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<200 AND ModifiedOn IS NOT NULL"
+        query = "TimeInterval='001h' AND SiteName IN('Blair BAM Direct', 'GHills BAM direct', 'NCORE') AND ParameterAlias IN('PM2.5', 'PM25LC') AND SystemStandardizedDate BETWEEN (CURRENT_TIMESTAMP - INTERVAL '24' HOUR) AND CURRENT_TIMESTAMP AND FinalValue<200 AND ModifiedOn IS NOT NULL"
+
     p = {
         "f":"json",
         "groupByFieldsForStatistics":"SiteName,EXTRACT(YEAR FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(MONTH FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(DAY FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND),EXTRACT(HOUR FROM ModifiedOn -INTERVAL '4:59:59' HOUR TO SECOND)",
@@ -43,7 +66,10 @@ def getLevels(pollutant_type, interval_count, interval_type):
     return sensor_values
 
 if __name__ == "__main__":
-    data = getLevels('OZONE', 24, "HOUR")
+    p = "PM2.5"
+    data = getLevels(p, 24, "HOUR")
+    #if p[0:2] != 'PM':
+    chart.combineValues(data)
     chart.displayGraph(data)
-    #chart.combineValues(data)
+    
     #print(data)
