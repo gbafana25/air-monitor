@@ -1,8 +1,11 @@
+#!/usr/bin/python3
 # module to get raw numbers
 
 import requests
 import json
 import chart
+import sys
+import time
 
 base_url = "https://services.arcgis.com/pDAi2YK0L0QxVJHj/arcgis/rest/services/AirQuality_Monitors_and_Data_(public_view)/FeatureServer/1/query"
 outstats = [{"onStatisticField":"ReportValue","outStatisticFieldName":"value","statisticType":"avg"}]
@@ -66,10 +69,26 @@ def getLevels(pollutant_type, interval_count, interval_type):
     return sensor_values
 
 if __name__ == "__main__":
-    p = "PM2.5"
-    data = getLevels(p, 24, "HOUR")
-    #if p[0:2] != 'PM':
-    chart.combineValues(data)
-    chart.displayGraph(data)
+    if(len(sys.argv) == 1):
+        print("Help menu")
+        print("_____________________________________________________________")
+        print("--pollutant | -p [pollutant type]: specify pollutant type")
+        print("--all | -a : print data for all pollutants")
+        print("_____________________________________________________________")
+    elif(sys.argv[1] in ['--pollutant', '-p'] and sys.argv[2] in list(pollutant_types.keys())):
+        # print specified pollutant
+        # keep at 24 hour max interval now, longer intervals may not fit as cleanly in terminal
+        # (depends on display size)
+        data = getLevels(sys.argv[2], 24, "HOUR")
+        chart.combineValues(data)
+        chart.displayGraph(data)
+    elif(sys.argv[1] in ['--all', '-a']):
+        for p in list(pollutant_types.keys()):
+            data = getLevels(p, 24, "HOUR")
+            chart.combineValues(data)
+            chart.displayGraph(data)
+            # keep for rate limit?
+            time.sleep(0.5)
+
     
     #print(data)
