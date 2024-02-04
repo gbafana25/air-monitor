@@ -2,8 +2,6 @@
 
 Frontend app/script for Douglas County Air Quality
 
-- look into android studio alternatives
-
 ## Modules
 - `dc_airq`: gets air quality data
 - `chart`: plots data in terminal
@@ -26,7 +24,3 @@ Frontend app/script for Douglas County Air Quality
 - sitename in `where` not needed (avg numbers from all sources)
 - in `where`, between specifier can be changed `(CURRENT_TIMESTAMP - INTERVAL '2' DAY)`
 
-# TODO
-- figure out how to show negative data points (SO2, PM2.5) (add stop value to `numpy.arange`?)
-    - not as important, since these values don't show up that often
-    - averaging now somewhat fixes it

@@ -74,6 +74,7 @@ if __name__ == "__main__":
         print("_____________________________________________________________")
         print("--pollutant | -p [pollutant type]: specify pollutant type")
         print("--all | -a : print data for all pollutants")
+        print("Pollutant types: "+str(list(pollutant_types.keys())))
         print("_____________________________________________________________")
     elif(sys.argv[1] in ['--pollutant', '-p'] and sys.argv[2] in list(pollutant_types.keys())):
         # print specified pollutant

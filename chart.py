@@ -2,8 +2,6 @@
 import math
 import numpy
 
-# NOTE: data is already ordered chronologically in api response (don't use time data to  calculate position)
-
 # parts per x * 100 for array indexes, # of decimal places to round, decrement level, unit, conversion factor, list divisor
 interval_ranges = {
     "CO":(40, 2, -0.01, "ppm", 100, 100, "{:.2f}", 100), # ppm
